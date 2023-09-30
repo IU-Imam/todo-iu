@@ -28,7 +28,11 @@ class TodoController extends Controller
      */
     public function show(Todo $todo)
     {
-        //
+        $comments = Comment::all();
+
+    return response()->json([
+        'comments' => $comments,
+    ]);
     }
 
     /**

@@ -1,4 +1,8 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+    env:{
+        BACKEND_URL:'http://localhost:8000'
+    }
+}
 
 module.exports = nextConfig
