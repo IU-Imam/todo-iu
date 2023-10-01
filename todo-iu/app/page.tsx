@@ -23,19 +23,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDistanceToNow } from 'date-fns'; // Import formatDistanceToNow
+import { formatDistanceToNow } from 'date-fns';
+import { title } from "process";
 
 export default function Home() {
-  const [todos, setTodos] = useState([]); // Declare todos state variable
+  const [todos, setTodos] = useState([]);
+  const [title, setTitle] = useState(''); // Rename state variable to avoid conflicts
 
   useEffect(() => {
     fetchTodos();
   }, []);
 
+  const titleChange = (e) => {
+    setTitle(e.target.value); // Update todoTitle state
+  }
+
+  const submitForm = (e) => {
+    e.preventDefault(); // Fix typo here
+    var formData = new FormData()
+    formData.append('title',title)
+    formData.append('is_done',0)
+
+    axios.post('/api/todos',formData).then((response)=>{
+      setTitle('')
+      fetchTodos()
+    })
+  }
+
   function fetchTodos() {
     axios.get('/api/todos')
       .then((response) => {
-        setTodos(response.data); // Set todos state with response data
+        setTodos(response.data);
       })
       .catch((error) => {
         console.error("Error fetching todos:", error);
@@ -48,13 +66,15 @@ export default function Home() {
         <div className="w-96 m-4 cursor-pointer border-2 shadow-lg rounded-xl items-center">
           <ThemeToggle />
           <Card>
-            <CardHeader>
-              <CardTitle>Add Todo</CardTitle>
-              <CardDescription className="flex w-full max-w-sm items-center space-x-2">
-                <Input type="text" placeholder="Todo" />
-                <Button type="submit">Add</Button>
-              </CardDescription>
-            </CardHeader>
+            <form  method="POST" onSubmit={submitForm}>
+              <CardHeader>
+                <CardTitle>Add Todo</CardTitle>
+                <CardDescription className="flex w-full max-w-sm items-center space-x-2">
+                  <Input type="text" placeholder="Todo" className="form-control" name="title" value={title} onChange={titleChange} />
+                  <Button className="input-group-text" type="submit">Add</Button>
+                </CardDescription>
+              </CardHeader>
+            </form>
             <CardContent>
               <Table>
                 <TableCaption>A list of your Todos.</TableCaption>
@@ -66,7 +86,7 @@ export default function Home() {
                     <TableHead className="w-[100px]">SN</TableHead>
                     <TableHead className="w-[100px]">Todo</TableHead>
                     <TableHead className="w-[100px]">Action</TableHead>
-                    <TableHead >Created</TableHead> {/* Added Created At header */}
+                    <TableHead>Created</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -85,13 +105,12 @@ export default function Home() {
                           <TrashIcon className="h-4 w-4" />
                         </Button>
                       </TableCell>
-                      <TableCell><p className="text-xs">
-
-                        {formatDistanceToNow(new Date(item.created_at))} {/* Use formatDistanceToNow for the date */}
-                      </p>
+                      <TableCell>
+                        <p className="text-xs">
+                          {formatDistanceToNow(new Date(item.created_at))}
+                        </p>
                       </TableCell>
                     </TableRow>
-                    
                   ))}
                 </TableBody>
               </Table>
